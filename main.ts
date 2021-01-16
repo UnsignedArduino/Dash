@@ -71,6 +71,16 @@ function jump (sprite: Sprite, gravity: number, tiles2: number) {
         jumps += 1
     }
 }
+function fade (_in: boolean, duration: number, block: boolean) {
+    if (_in) {
+        color.startFade(color.originalPalette, color.Black, duration)
+    } else {
+        color.startFade(color.Black, color.originalPalette, duration)
+    }
+    if (block) {
+        color.pauseUntilFadeDone()
+    }
+}
 scene.onOverlapTile(SpriteKind.Player, myTiles.tile5, function (sprite, location) {
     win()
 })
@@ -87,6 +97,9 @@ let jumps = 0
 let constants_max_jumps = 0
 let constants_tiles_high_jump = 0
 let constants_gravity = 0
+color.setPalette(
+color.Black
+)
 constants_gravity = 300
 constants_tiles_high_jump = 3
 constants_max_jumps = 3
@@ -94,10 +107,11 @@ jumps = 0
 won = false
 make_player()
 level1()
+fade(false, 2000, false)
 game.onUpdate(function () {
     sprite_player.vx = 48
 })
-game.onUpdateInterval(50, function () {
+game.onUpdateInterval(100, function () {
     if (!(won)) {
         if (sprite_player.x > sprite_player_cam.x) {
             sprite_player.x += -1
