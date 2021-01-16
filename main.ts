@@ -49,14 +49,18 @@ function win () {
 }
 function make_player () {
     sprite_player = sprites.create(img`
-        c c c c c c c c 
-        c b b b b b b c 
-        c b c b b c b c 
-        c b c b b c b c 
-        c b b b b b b c 
-        c b c c c c b c 
-        c b b b b b b c 
-        c c c c c c c c 
+        . . . . . . . . . . . . 
+        . . . . . . . . . . . . 
+        . . c c c c c c c c . . 
+        . . c b b b b b b c . . 
+        . . c b c b b c b c . . 
+        . . c b c b b c b c . . 
+        . . c b b b b b b c . . 
+        . . c b c c c c b c . . 
+        . . c b b b b b b c . . 
+        . . c c c c c c c c . . 
+        . . . . . . . . . . . . 
+        . . . . . . . . . . . . 
         `, SpriteKind.Player)
     sprite_player_cam = sprites.create(img`
         . 
@@ -69,6 +73,14 @@ function jump (sprite: Sprite, gravity: number, tiles2: number) {
     if (jumps < constants_max_jumps) {
         sprite.vy = 0 - Math.sqrt(2 * (gravity * (tiles2 * tiles.tileWidth())))
         jumps += 1
+        timer.background(function () {
+            timer.throttle("rotate", 100, function () {
+                for (let index = 0; index < 36; index++) {
+                    transformSprites.changeRotation(sprite_player, 10)
+                    pause(10)
+                }
+            })
+        })
     }
 }
 function fade (_in: boolean, duration: number, block: boolean) {
@@ -102,7 +114,7 @@ color.Black
 )
 constants_gravity = 300
 constants_tiles_high_jump = 3
-constants_max_jumps = 3
+constants_max_jumps = 2
 jumps = 0
 won = false
 make_player()
