@@ -97,6 +97,9 @@ function make_player () {
     sprite_player_cam.setFlag(SpriteFlag.Ghost, true)
     scene.cameraFollowSprite(sprite_player_cam)
 }
+scene.onOverlapTile(SpriteKind.Player, myTiles.tile7, function (sprite, location) {
+    sprite.destroy(effects.disintegrate, 100)
+})
 function jump (sprite: Sprite, gravity: number, tiles2: number) {
     if (jumps < constants_max_jumps) {
         sprite.vy = 0 - Math.sqrt(2 * (gravity * (tiles2 * tiles.tileWidth())))
