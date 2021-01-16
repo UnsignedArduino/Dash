@@ -36,29 +36,7 @@ function level1 () {
     sprite_player.setVelocity(48, 0)
     sprite_player_cam.setVelocity(48, 0)
     sprite_player.ay = constants_gravity
-    tilemap_length = tiles.tilemapColumns() * tiles.tileWidth()
-    sprite_progress_bar = statusbars.create(127, 4, StatusBarKind.Progress)
-    sprite_progress_bar.setFlag(SpriteFlag.RelativeToCamera, true)
-    sprite_progress_bar.left = 4
-    sprite_progress_bar.top = 4
-    sprite_progress_bar.value = 0
-    sprite_progress_bar.max = tilemap_length
-    sprite_progress_bar.setColor(7, 12)
-    sprite_progress_bar.setBarBorder(1, 12)
-    timer.background(function () {
-        while (true) {
-            sprite_progress_bar.value = sprite_player.x
-            percent_traveled = Math.round(Math.map(sprite_player.x, 0, tilemap_length, 0, 100))
-            if (percent_traveled < 10) {
-                sprite_progress_bar.setLabel("" + percent_traveled + "%" + "  ", 15)
-            } else if (percent_traveled < 100) {
-                sprite_progress_bar.setLabel("" + percent_traveled + "%" + " ", 15)
-            } else {
-                sprite_progress_bar.setLabel("" + percent_traveled + "%", 15)
-            }
-            pause(100)
-        }
-    })
+    create_status_bar(sprite_player, tiles.tilemapColumns() * tiles.tileWidth())
 }
 scene.onOverlapTile(SpriteKind.Player, myTiles.tile4, function (sprite, location) {
     win()
@@ -71,6 +49,30 @@ function win () {
     won = true
     timer.after(2000, function () {
         game.over(true)
+    })
+}
+function create_status_bar (sprite: Sprite, tilemap_length: number) {
+    sprite_progress_bar = statusbars.create(127, 4, StatusBarKind.Progress)
+    sprite_progress_bar.setFlag(SpriteFlag.RelativeToCamera, true)
+    sprite_progress_bar.left = 4
+    sprite_progress_bar.top = 4
+    sprite_progress_bar.value = 0
+    sprite_progress_bar.max = tilemap_length
+    sprite_progress_bar.setColor(7, 12)
+    sprite_progress_bar.setBarBorder(1, 12)
+    timer.background(function () {
+        while (true) {
+            sprite_progress_bar.value = sprite.x
+            percent_traveled = Math.round(Math.map(sprite.x, 0, tilemap_length, 0, 100))
+            if (percent_traveled < 10) {
+                sprite_progress_bar.setLabel("" + percent_traveled + "%" + "  ", 15)
+            } else if (percent_traveled < 100) {
+                sprite_progress_bar.setLabel("" + percent_traveled + "%" + " ", 15)
+            } else {
+                sprite_progress_bar.setLabel("" + percent_traveled + "%", 15)
+            }
+            pause(100)
+        }
     })
 }
 function make_player () {
@@ -130,7 +132,6 @@ sprites.onDestroyed(SpriteKind.Player, function (sprite) {
 })
 let percent_traveled = 0
 let sprite_progress_bar: StatusBarSprite = null
-let tilemap_length = 0
 let sprite_player_cam: Sprite = null
 let sprite_player: Sprite = null
 let won = false
