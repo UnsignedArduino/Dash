@@ -95,8 +95,9 @@ sprites.onDestroyed(SpriteKind.Player, function (sprite) {
 function level_1 () {
     tiles.setSmallTilemap(tilemap`level1`)
     scene.setBackgroundColor(13)
-    tiles.placeOnTile(sprite_player, tiles.getTileLocation(1, 13))
-    tiles.placeOnTile(sprite_player_cam, tiles.getTileLocation(1, 13))
+    tiles.placeOnRandomTile(sprite_player, assets.tile`start`)
+    tiles.placeOnRandomTile(sprite_player_cam, assets.tile`start`)
+    tiles.setTileAt(tiles.getTilesByType(assets.tile`start`)[0], assets.tile`transparency8`)
     sprite_player.setVelocity(48, 0)
     sprite_player_cam.setVelocity(48, 0)
     sprite_player.ay = constants_gravity
