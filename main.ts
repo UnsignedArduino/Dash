@@ -93,7 +93,7 @@ sprites.onDestroyed(SpriteKind.Player, function (sprite) {
     })
 })
 function level_1 () {
-    tiles.setSmallTilemap(tilemap`level1`)
+    tiles.setSmallTilemap(tilemap`level_1`)
     scene.setBackgroundColor(13)
     tiles.placeOnRandomTile(sprite_player, assets.tile`start`)
     tiles.placeOnRandomTile(sprite_player_cam, assets.tile`start`)

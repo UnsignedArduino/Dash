@@ -70,7 +70,7 @@
             "myTiles.tile5",
             "myTiles.tile8"
         ],
-        "displayName": "level1"
+        "displayName": "level_1"
     },
     "*": {
         "mimeType": "image/x-mkcd-f4",
