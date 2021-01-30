@@ -185,7 +185,6 @@ blockMenu.onMenuOptionSelected(function (option, index) {
 function level_1 () {
     tiles.setSmallTilemap(tilemap`level_1`)
     scene.setBackgroundColor(13)
-    prepare_level()
 }
 let selected = false
 let percent_traveled = 0
@@ -213,7 +212,9 @@ pause(1000)
 if (selected_level == 1) {
     level_1()
 }
+prepare_level()
 in_game = true
+sprite_player.say("")
 fade(false, 2000, false)
 game.onUpdate(function () {
     sprite_player.vx = 48
