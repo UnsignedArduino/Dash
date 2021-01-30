@@ -11,28 +11,6 @@ scene.onHitWall(SpriteKind.Player, function (sprite, location) {
         jumps = 0
     }
 })
-function display_text () {
-    timer.background(function () {
-        while (!(in_game)) {
-            for (let text of [
-            "Welcome to Dash!",
-            "By Unsigned_Arduino.",
-            "Use the joystick/d-pad/WASD/arrow keys to select a level.",
-            "Press A to confirm level selection.",
-            "Use A/up arrow/d-pad up/up arrow key/W to jump!",
-            "Try to get to the end!",
-            "Enjoy!",
-            ""
-            ]) {
-                if (in_game) {
-                    break;
-                }
-                sprite_player.say(text, 4000)
-                pause(5000)
-            }
-        }
-    })
-}
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     if (in_game) {
         jump(sprite_player, constants_gravity, constants_tiles_high_jump)
@@ -52,11 +30,11 @@ function create_status_bar (sprite: Sprite, tilemap_length: number) {
     sprite_progress_bar = statusbars.create(127, 4, StatusBarKind.Progress)
     sprite_progress_bar.setFlag(SpriteFlag.RelativeToCamera, true)
     sprite_progress_bar.left = 4
-    sprite_progress_bar.top = 4
+    sprite_progress_bar.top = 2
     sprite_progress_bar.value = 0
     sprite_progress_bar.max = tilemap_length
-    sprite_progress_bar.setColor(7, 12)
-    sprite_progress_bar.setBarBorder(1, 12)
+    sprite_progress_bar.setColor(7, 15)
+    sprite_progress_bar.setBarBorder(1, 15)
     timer.background(function () {
         while (true) {
             sprite_progress_bar.value = sprite.x
@@ -68,13 +46,13 @@ function create_status_bar (sprite: Sprite, tilemap_length: number) {
             } else {
                 sprite_progress_bar.setLabel("" + percent_traveled + "%", 15)
             }
+            if (percent_traveled == 100) {
+                win()
+            }
             pause(100)
         }
     })
 }
-scene.onOverlapTile(SpriteKind.Player, assets.tile`flag_bottom`, function (sprite, location) {
-    win()
-})
 scene.onOverlapTile(SpriteKind.Player, assets.tile`auto_jump`, function (sprite, location) {
     timer.throttle("auto_jump", 100, function () {
         jump(sprite_player, constants_gravity, constants_tiles_high_jump)
@@ -93,9 +71,6 @@ function prepare_level () {
     tiles.coverAllTiles(assets.tile`from`, assets.tile`blank`)
     tiles.coverAllTiles(assets.tile`to0`, assets.tile`blank`)
 }
-scene.onOverlapTile(SpriteKind.Player, assets.tile`flag_top`, function (sprite, location) {
-    win()
-})
 scene.onOverlapTile(SpriteKind.Player, assets.tile`from`, function (sprite, location) {
     tiles.placeOnRandomTile(sprite_player, assets.tile`to0`)
 })
@@ -186,8 +161,8 @@ let selected = false
 let percent_traveled = 0
 let sprite_progress_bar: StatusBarSprite = null
 let sprite_player_cam: Sprite = null
-let sprite_player: Sprite = null
 let selected_level = 0
+let sprite_player: Sprite = null
 let in_game = false
 let won = false
 let jumps = 0
@@ -201,18 +176,16 @@ jumps = 0
 won = false
 in_game = false
 make_player()
-timer.after(2000, function () {
-    display_text()
-})
+sprite_player.say("Dash!")
 if (true) {
     selected_level = select_level()
     pause(1000)
-    if (selected_level == 1) {
-        level_1()
-    } else if (selected_level == 2) {
-        level_2()
-    }
 } else {
+    selected_level = 2
+}
+if (selected_level == 1) {
+    level_1()
+} else if (selected_level == 2) {
     level_2()
 }
 prepare_level()
