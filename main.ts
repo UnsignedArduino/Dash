@@ -24,19 +24,11 @@ function display_text () {
             "Enjoy!",
             ""
             ]) {
-                sprite_player.say(text, 4000)
-                pause(5000)
-                timer.background(function () {
-                    for (let index = 0; index < 20; index++) {
-                        if (in_game) {
-                            sprite_player.say("")
-                        }
-                        pause(250)
-                    }
-                })
                 if (in_game) {
                     break;
                 }
+                sprite_player.say(text, 4000)
+                pause(5000)
             }
         }
     })
@@ -107,6 +99,10 @@ scene.onOverlapTile(SpriteKind.Player, assets.tile`flag_top`, function (sprite, 
 scene.onOverlapTile(SpriteKind.Player, assets.tile`from`, function (sprite, location) {
     tiles.placeOnRandomTile(sprite_player, assets.tile`to0`)
 })
+function level_2 () {
+    tiles.setSmallTilemap(tilemap`level_2`)
+    scene.setBackgroundColor(13)
+}
 function make_player () {
     sprite_player = sprites.create(assets.image`character`, SpriteKind.Player)
     sprite_player_cam = sprites.create(assets.image`camera_reference`, SpriteKind.Player)
@@ -122,7 +118,7 @@ function select_level () {
     color.Black
     )
     blockMenu.setColors(1, 15)
-    blockMenu.showMenu(["1"], MenuStyle.Grid, MenuLocation.BottomHalf)
+    blockMenu.showMenu(["1", "2"], MenuStyle.Grid, MenuLocation.BottomHalf)
     blockMenu.setControlsEnabled(false)
     scene.setBackgroundColor(13)
     tiles.setSmallTilemap(tilemap`demo`)
@@ -191,6 +187,7 @@ let percent_traveled = 0
 let sprite_progress_bar: StatusBarSprite = null
 let sprite_player_cam: Sprite = null
 let sprite_player: Sprite = null
+let selected_level = 0
 let in_game = false
 let won = false
 let jumps = 0
@@ -207,10 +204,16 @@ make_player()
 timer.after(2000, function () {
     display_text()
 })
-let selected_level = select_level()
-pause(1000)
-if (selected_level == 1) {
-    level_1()
+if (true) {
+    selected_level = select_level()
+    pause(1000)
+    if (selected_level == 1) {
+        level_1()
+    } else if (selected_level == 2) {
+        level_2()
+    }
+} else {
+    level_2()
 }
 prepare_level()
 in_game = true
