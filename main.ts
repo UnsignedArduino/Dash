@@ -11,6 +11,36 @@ scene.onHitWall(SpriteKind.Player, function (sprite, location) {
         jumps = 0
     }
 })
+function display_text () {
+    timer.background(function () {
+        while (!(in_game)) {
+            for (let text of [
+            "Welcome to Dash!",
+            "By Unsigned_Arduino.",
+            "Use the joystick/d-pad/WASD/arrow keys to select a level.",
+            "Press A to confirm level selection.",
+            "Use A/up arrow/d-pad up/up arrow key/W to jump!",
+            "Try to get to the end!",
+            "Enjoy!",
+            ""
+            ]) {
+                sprite_player.say(text, 4000)
+                pause(5000)
+                timer.background(function () {
+                    for (let index = 0; index < 20; index++) {
+                        if (in_game) {
+                            sprite_player.say("")
+                        }
+                        pause(250)
+                    }
+                })
+                if (in_game) {
+                    break;
+                }
+            }
+        }
+    })
+}
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     if (in_game) {
         jump(sprite_player, constants_gravity, constants_tiles_high_jump)
@@ -175,6 +205,9 @@ jumps = 0
 won = false
 in_game = false
 make_player()
+timer.after(2000, function () {
+    display_text()
+})
 let selected_level = select_level()
 pause(1000)
 if (selected_level == 1) {
