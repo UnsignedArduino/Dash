@@ -117,6 +117,8 @@ function jump (sprite: Sprite, gravity: number, tiles2: number) {
     if (jumps < constants_max_jumps) {
         sprite.vy = 0 - Math.sqrt(2 * (gravity * (tiles2 * tiles.tileWidth())))
         jumps += 1
+    }
+    if (in_simulator()) {
         timer.background(function () {
             timer.throttle("rotate", 100, function () {
                 for (let index = 0; index < 36; index++) {
@@ -126,6 +128,9 @@ function jump (sprite: Sprite, gravity: number, tiles2: number) {
             })
         })
     }
+}
+function in_simulator () {
+    return control.deviceDalVersion() == "sim"
 }
 function fade (_in: boolean, duration: number, block: boolean) {
     if (_in) {
