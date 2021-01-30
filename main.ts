@@ -85,6 +85,9 @@ function make_player () {
     sprite_player_cam.setFlag(SpriteFlag.Ghost, true)
     sprite_player.ay = constants_gravity
 }
+function in_simulator_or_rpi () {
+    return control.deviceDalVersion() == "sim" || control.deviceDalVersion() == "linux"
+}
 scene.onOverlapTile(SpriteKind.Player, assets.tile`bottom_spike`, function (sprite, location) {
     sprite.destroy(effects.disintegrate, 100)
 })
@@ -118,7 +121,7 @@ function jump (sprite: Sprite, gravity: number, tiles2: number) {
         sprite.vy = 0 - Math.sqrt(2 * (gravity * (tiles2 * tiles.tileWidth())))
         jumps += 1
     }
-    if (in_simulator()) {
+    if (in_simulator_or_rpi()) {
         timer.background(function () {
             timer.throttle("rotate", 100, function () {
                 for (let index = 0; index < 36; index++) {
@@ -128,9 +131,6 @@ function jump (sprite: Sprite, gravity: number, tiles2: number) {
             })
         })
     }
-}
-function in_simulator () {
-    return control.deviceDalVersion() == "sim"
 }
 function fade (_in: boolean, duration: number, block: boolean) {
     if (_in) {
