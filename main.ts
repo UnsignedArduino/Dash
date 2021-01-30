@@ -67,6 +67,9 @@ function prepare_level () {
     sprite_player_cam.setVelocity(48, 0)
     create_status_bar(sprite_player, tiles.tilemapColumns() * tiles.tileWidth())
     scene.cameraFollowSprite(sprite_player_cam)
+    tiles.coverAllTiles(assets.tile`auto_jump`, assets.tile`blank`)
+    tiles.coverAllTiles(assets.tile`from`, assets.tile`blank`)
+    tiles.coverAllTiles(assets.tile`to0`, assets.tile`blank`)
 }
 scene.onOverlapTile(SpriteKind.Player, assets.tile`flag_top`, function (sprite, location) {
     win()
