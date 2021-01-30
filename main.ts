@@ -2,7 +2,9 @@ namespace StatusBarKind {
     export const Progress = StatusBarKind.create()
 }
 controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
-    jump(sprite_player, constants_gravity, constants_tiles_high_jump)
+    if (in_game) {
+        jump(sprite_player, constants_gravity, constants_tiles_high_jump)
+    }
 })
 scene.onHitWall(SpriteKind.Player, function (sprite, location) {
     if (sprite.isHittingTile(CollisionDirection.Bottom)) {
@@ -10,7 +12,9 @@ scene.onHitWall(SpriteKind.Player, function (sprite, location) {
     }
 })
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
-    jump(sprite_player, constants_gravity, constants_tiles_high_jump)
+    if (in_game) {
+        jump(sprite_player, constants_gravity, constants_tiles_high_jump)
+    }
 })
 scene.onOverlapTile(SpriteKind.Player, assets.tile`top_spike`, function (sprite, location) {
     sprite.destroy(effects.disintegrate, 100)
@@ -49,19 +53,62 @@ function create_status_bar (sprite: Sprite, tilemap_length: number) {
 scene.onOverlapTile(SpriteKind.Player, assets.tile`flag_bottom`, function (sprite, location) {
     win()
 })
+scene.onOverlapTile(SpriteKind.Player, assets.tile`auto_jump`, function (sprite, location) {
+    timer.throttle("auto_jump", 100, function () {
+        jump(sprite_player, constants_gravity, constants_tiles_high_jump)
+        jumps = 0
+    })
+})
+function prepare_level () {
+    tiles.placeOnRandomTile(sprite_player, assets.tile`start`)
+    tiles.placeOnRandomTile(sprite_player_cam, assets.tile`start`)
+    tiles.setTileAt(tiles.getTilesByType(assets.tile`start`)[0], assets.tile`transparency8`)
+    sprite_player.setVelocity(48, 0)
+    sprite_player_cam.setVelocity(48, 0)
+    create_status_bar(sprite_player, tiles.tilemapColumns() * tiles.tileWidth())
+    scene.cameraFollowSprite(sprite_player_cam)
+}
 scene.onOverlapTile(SpriteKind.Player, assets.tile`flag_top`, function (sprite, location) {
     win()
+})
+scene.onOverlapTile(SpriteKind.Player, assets.tile`from`, function (sprite, location) {
+    tiles.placeOnRandomTile(sprite_player, assets.tile`to0`)
 })
 function make_player () {
     sprite_player = sprites.create(assets.image`character`, SpriteKind.Player)
     sprite_player_cam = sprites.create(assets.image`camera_reference`, SpriteKind.Player)
     sprite_player.setFlag(SpriteFlag.AutoDestroy, true)
     sprite_player_cam.setFlag(SpriteFlag.Ghost, true)
-    scene.cameraFollowSprite(sprite_player_cam)
+    sprite_player.ay = constants_gravity
 }
 scene.onOverlapTile(SpriteKind.Player, assets.tile`bottom_spike`, function (sprite, location) {
     sprite.destroy(effects.disintegrate, 100)
 })
+function select_level () {
+    color.setPalette(
+    color.Black
+    )
+    blockMenu.setColors(1, 15)
+    blockMenu.showMenu(["1"], MenuStyle.Grid, MenuLocation.BottomHalf)
+    blockMenu.setControlsEnabled(false)
+    scene.setBackgroundColor(13)
+    tiles.setSmallTilemap(tilemap`demo`)
+    tiles.placeOnRandomTile(sprite_player, assets.tile`start`)
+    tiles.setTileAt(tiles.getTilesByType(assets.tile`start`)[0], assets.tile`transparency8`)
+    tiles.coverAllTiles(assets.tile`auto_jump`, assets.tile`blank`)
+    tiles.coverAllTiles(assets.tile`from`, assets.tile`blank`)
+    tiles.coverAllTiles(assets.tile`to0`, assets.tile`blank`)
+    sprite_player.setVelocity(48, 0)
+    scene.cameraFollowSprite(sprite_player)
+    fade(false, 2000, true)
+    blockMenu.setControlsEnabled(true)
+    wait_for_select()
+    fade(true, 2000, true)
+    color.setPalette(
+    color.Black
+    )
+    return parseFloat(blockMenu.selectedMenuOption())
+}
 function jump (sprite: Sprite, gravity: number, tiles2: number) {
     if (jumps < constants_max_jumps) {
         sprite.vy = 0 - Math.sqrt(2 * (gravity * (tiles2 * tiles.tileWidth())))
@@ -86,42 +133,51 @@ function fade (_in: boolean, duration: number, block: boolean) {
         color.pauseUntilFadeDone()
     }
 }
+function wait_for_select () {
+    selected = false
+    while (!(selected)) {
+        pause(100)
+    }
+    blockMenu.closeMenu()
+}
 sprites.onDestroyed(SpriteKind.Player, function (sprite) {
     sprite_player_cam.setVelocity(0, 0)
     timer.after(2000, function () {
         game.over(false)
     })
 })
+blockMenu.onMenuOptionSelected(function (option, index) {
+    selected = true
+})
 function level_1 () {
     tiles.setSmallTilemap(tilemap`level_1`)
     scene.setBackgroundColor(13)
-    tiles.placeOnRandomTile(sprite_player, assets.tile`start`)
-    tiles.placeOnRandomTile(sprite_player_cam, assets.tile`start`)
-    tiles.setTileAt(tiles.getTilesByType(assets.tile`start`)[0], assets.tile`transparency8`)
-    sprite_player.setVelocity(48, 0)
-    sprite_player_cam.setVelocity(48, 0)
-    sprite_player.ay = constants_gravity
-    create_status_bar(sprite_player, tiles.tilemapColumns() * tiles.tileWidth())
+    prepare_level()
 }
+let selected = false
 let percent_traveled = 0
 let sprite_progress_bar: StatusBarSprite = null
 let sprite_player_cam: Sprite = null
 let sprite_player: Sprite = null
+let in_game = false
 let won = false
 let jumps = 0
 let constants_max_jumps = 0
 let constants_tiles_high_jump = 0
 let constants_gravity = 0
-color.setPalette(
-color.Black
-)
 constants_gravity = 300
 constants_tiles_high_jump = 3
 constants_max_jumps = 2
 jumps = 0
 won = false
+in_game = false
 make_player()
-level_1()
+let selected_level = select_level()
+pause(1000)
+if (selected_level == 1) {
+    level_1()
+}
+in_game = true
 fade(false, 2000, false)
 game.onUpdate(function () {
     sprite_player.vx = 48

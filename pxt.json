@@ -8,7 +8,8 @@
         "Timers": "github:microsoft/arcade-timers#v1.1.0",
         "tilemaps": "github:microsoft/pxt-tilemaps#v1.10.0",
         "Color Fading": "github:jwunderl/pxt-color#v0.2.0",
-        "pxt-status-bar": "github:jwunderl/pxt-status-bar#v0.4.0"
+        "pxt-status-bar": "github:jwunderl/pxt-status-bar#v0.4.0",
+        "block-menu": "github:riknoll/arcade-custom-menu#v0.0.1"
     },
     "files": [
         "main.blocks",
