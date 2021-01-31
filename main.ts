@@ -54,9 +54,9 @@ function create_status_bar (sprite: Sprite, tilemap_length: number) {
     })
 }
 function game_over (win2: boolean) {
-    info.setScore(sprite_player.x)
+    info.setScore(Math.round(sprite_player.x))
     if (info.score() > high_scores[selected_level]) {
-        high_scores[selected_level] = info.score()
+        high_scores[selected_level - 1] = info.score()
     }
     blockSettings.writeNumberArray("high_scores", high_scores)
     game.over(win2)
@@ -105,7 +105,7 @@ function select_level () {
     color.Black
     )
     blockMenu.setColors(1, 15)
-    blockMenu.showMenu(["1", "2", "3"], MenuStyle.Grid, MenuLocation.BottomHalf)
+    blockMenu.showMenu(menu, MenuStyle.Grid, MenuLocation.BottomHalf)
     blockMenu.setControlsEnabled(false)
     scene.setBackgroundColor(13)
     tiles.setSmallTilemap(tilemap`demo`)
@@ -180,6 +180,7 @@ let percent_traveled = 0
 let sprite_progress_bar: StatusBarSprite = null
 let sprite_player_cam: Sprite = null
 let selected_level = 0
+let menu: string[] = []
 let sprite_player: Sprite = null
 let high_scores: number[] = []
 let in_game = false
@@ -191,6 +192,7 @@ let constants_gravity = 0
 constants_gravity = 300
 constants_tiles_high_jump = 3
 constants_max_jumps = 2
+let constants_length = 1596
 jumps = 0
 won = false
 in_game = false
@@ -211,6 +213,10 @@ high_scores = blockSettings.readNumberArray("high_scores")
 make_player()
 sprite_player.say("Dash!")
 if (true) {
+    menu = []
+    for (let index = 0; index <= 2; index++) {
+        menu.push("" + (index + 1) + " (" + high_scores[index] + "/" + constants_length + ")")
+    }
     selected_level = select_level()
     pause(1000)
 } else {
