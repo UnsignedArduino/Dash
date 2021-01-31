@@ -37,8 +37,8 @@ function create_status_bar (sprite: Sprite, tilemap_length: number) {
     sprite_progress_bar.setBarBorder(1, 15)
     timer.background(function () {
         while (true) {
-            sprite_progress_bar.value = sprite.x
-            percent_traveled = Math.round(Math.map(sprite.x, 0, tilemap_length, 0, 100))
+            sprite_progress_bar.value = sprite.right
+            percent_traveled = Math.round(Math.map(sprite.right, 0, tilemap_length, 0, 100))
             if (percent_traveled < 10) {
                 sprite_progress_bar.setLabel("" + percent_traveled + "%" + "  ", 15)
             } else if (percent_traveled < 100) {
@@ -54,7 +54,7 @@ function create_status_bar (sprite: Sprite, tilemap_length: number) {
     })
 }
 function game_over (win2: boolean) {
-    info.setScore(Math.round(sprite_player.x))
+    info.setScore(Math.constrain(Math.round(sprite_player.right), 0, constants_length))
     if (info.score() > high_scores[selected_level]) {
         high_scores[selected_level - 1] = info.score()
     }
@@ -186,13 +186,14 @@ let high_scores: number[] = []
 let in_game = false
 let won = false
 let jumps = 0
+let constants_length = 0
 let constants_max_jumps = 0
 let constants_tiles_high_jump = 0
 let constants_gravity = 0
 constants_gravity = 300
 constants_tiles_high_jump = 3
 constants_max_jumps = 2
-let constants_length = 1596
+constants_length = 1600
 jumps = 0
 won = false
 in_game = false
@@ -223,7 +224,7 @@ if (true) {
     selected_level = 3
 }
 tiles.loadMap(tiles.createMap(tilemap`level12`))
-blockSettings.writeNumber("high-score", high_scores[selected_level])
+blockSettings.writeNumber("high-score", high_scores[selected_level - 1])
 if (selected_level == 1) {
     level_1()
 } else if (selected_level == 2) {
