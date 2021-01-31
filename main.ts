@@ -23,7 +23,7 @@ function win () {
     sprite_player_cam.setVelocity(0, 0)
     won = true
     timer.after(2000, function () {
-        game.over(true)
+        game_over(true)
     })
 }
 function create_status_bar (sprite: Sprite, tilemap_length: number) {
@@ -52,6 +52,14 @@ function create_status_bar (sprite: Sprite, tilemap_length: number) {
             pause(100)
         }
     })
+}
+function game_over (win2: boolean) {
+    info.setScore(sprite_player.x)
+    if (info.score() > high_scores[selected_level]) {
+        high_scores[selected_level] = info.score()
+    }
+    blockSettings.writeNumberArray("high_scores", high_scores)
+    game.over(win2)
 }
 scene.onOverlapTile(SpriteKind.Player, assets.tile`auto_jump`, function (sprite, location) {
     timer.throttle("auto_jump", 100, function () {
@@ -153,7 +161,7 @@ function wait_for_select () {
 sprites.onDestroyed(SpriteKind.Player, function (sprite) {
     sprite_player_cam.setVelocity(0, 0)
     timer.after(2000, function () {
-        game.over(false)
+        game_over(false)
     })
 })
 blockMenu.onMenuOptionSelected(function (option, index) {
@@ -173,6 +181,7 @@ let sprite_progress_bar: StatusBarSprite = null
 let sprite_player_cam: Sprite = null
 let selected_level = 0
 let sprite_player: Sprite = null
+let high_scores: number[] = []
 let in_game = false
 let won = false
 let jumps = 0
@@ -185,6 +194,20 @@ constants_max_jumps = 2
 jumps = 0
 won = false
 in_game = false
+pause(100)
+if (controller.B.isPressed()) {
+    scene.setBackgroundColor(13)
+    pause(100)
+    if (game.ask("Reset high scores?")) {
+        blockSettings.remove("high_scores")
+        blockSettings.remove("high-score")
+        game.showLongText("Successfully reset high scores!", DialogLayout.Bottom)
+    }
+}
+if (!(blockSettings.exists("high_scores"))) {
+    blockSettings.writeNumberArray("high_scores", [0, 0, 0])
+}
+high_scores = blockSettings.readNumberArray("high_scores")
 make_player()
 sprite_player.say("Dash!")
 if (true) {
@@ -194,6 +217,7 @@ if (true) {
     selected_level = 3
 }
 tiles.loadMap(tiles.createMap(tilemap`level12`))
+blockSettings.writeNumber("high-score", high_scores[selected_level])
 if (selected_level == 1) {
     level_1()
 } else if (selected_level == 2) {
