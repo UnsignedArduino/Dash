@@ -73,6 +73,7 @@ function prepare_level () {
 }
 scene.onOverlapTile(SpriteKind.Player, assets.tile`from`, function (sprite, location) {
     tiles.placeOnRandomTile(sprite_player, assets.tile`to0`)
+    tiles.placeOnRandomTile(sprite_player_cam, assets.tile`to0`)
 })
 function level_2 () {
     tiles.setSmallTilemap(tilemap`level_2`)
@@ -96,15 +97,15 @@ function select_level () {
     color.Black
     )
     blockMenu.setColors(1, 15)
-    blockMenu.showMenu(["1", "2"], MenuStyle.Grid, MenuLocation.BottomHalf)
+    blockMenu.showMenu(["1", "2", "3"], MenuStyle.Grid, MenuLocation.BottomHalf)
     blockMenu.setControlsEnabled(false)
     scene.setBackgroundColor(13)
     tiles.setSmallTilemap(tilemap`demo`)
     tiles.placeOnRandomTile(sprite_player, assets.tile`start`)
     tiles.setTileAt(tiles.getTilesByType(assets.tile`start`)[0], assets.tile`transparency8`)
-    tiles.coverAllTiles(assets.tile`auto_jump`, assets.tile`blank`)
     tiles.coverAllTiles(assets.tile`from`, assets.tile`blank`)
     tiles.coverAllTiles(assets.tile`to0`, assets.tile`blank`)
+    tiles.coverAllTiles(assets.tile`auto_jump`, assets.tile`blank`)
     sprite_player.setVelocity(48, 0)
     scene.cameraFollowSprite(sprite_player)
     fade(false, 2000, true)
@@ -162,6 +163,10 @@ function level_1 () {
     tiles.setSmallTilemap(tilemap`level_1`)
     scene.setBackgroundColor(13)
 }
+function level_3 () {
+    tiles.setSmallTilemap(tilemap`level_3`)
+    scene.setBackgroundColor(13)
+}
 let selected = false
 let percent_traveled = 0
 let sprite_progress_bar: StatusBarSprite = null
@@ -186,12 +191,15 @@ if (true) {
     selected_level = select_level()
     pause(1000)
 } else {
-    selected_level = 2
+    selected_level = 3
 }
+tiles.loadMap(tiles.createMap(tilemap`level12`))
 if (selected_level == 1) {
     level_1()
 } else if (selected_level == 2) {
     level_2()
+} else if (selected_level == 3) {
+    level_3()
 }
 prepare_level()
 in_game = true
