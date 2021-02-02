@@ -185,6 +185,7 @@ let percent_traveled = 0
 let sprite_progress_bar: StatusBarSprite = null
 let sprite_player_cam: Sprite = null
 let selected_level = 0
+let percent = 0
 let menu: string[] = []
 let sprite_player: Sprite = null
 let high_scores: number[] = []
@@ -199,6 +200,7 @@ constants_gravity = 300
 constants_tiles_high_jump = 3
 constants_max_jumps = 2
 constants_length = 1600
+let constants_levels = 3
 jumps = 0
 won = false
 in_game = false
@@ -213,15 +215,20 @@ if (controller.B.isPressed()) {
     }
 }
 if (!(blockSettings.exists("high_scores"))) {
-    blockSettings.writeNumberArray("high_scores", [0, 0, 0])
+    high_scores = []
+    for (let index = 0; index < constants_levels; index++) {
+        high_scores.push(0)
+    }
+    blockSettings.writeNumberArray("high_scores", high_scores)
 }
 high_scores = blockSettings.readNumberArray("high_scores")
 make_player()
 sprite_player.say("Dash!")
 if (true) {
     menu = []
-    for (let index = 0; index <= 2; index++) {
-        menu.push("" + (index + 1) + " (" + high_scores[index] + "/" + constants_length + ")")
+    for (let index = 0; index <= constants_levels - 1; index++) {
+        percent = spriteutils.roundWithPrecision(high_scores[index] / constants_length * 100, 2)
+        menu.push("" + (index + 1) + " (" + percent + "%" + ")")
     }
     selected_level = select_level()
     pause(1000)
