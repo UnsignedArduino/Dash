@@ -130,16 +130,21 @@ function jump (sprite: Sprite, gravity: number, tiles2: number) {
         sprite.vy = 0 - Math.sqrt(2 * (gravity * (tiles2 * tiles.tileWidth())))
         jumps += 1
     }
-    if (in_simulator_or_rpi()) {
-        timer.background(function () {
-            timer.throttle("rotate", 100, function () {
+    timer.background(function () {
+        timer.throttle("rotate", 100, function () {
+            if (in_simulator_or_rpi()) {
                 for (let index = 0; index < 36; index++) {
                     transformSprites.changeRotation(sprite_player, 10)
                     pause(10)
                 }
-            })
+            } else {
+                for (let index = 0; index < 8; index++) {
+                    transformSprites.changeRotation(sprite_player, 45)
+                    pause(45)
+                }
+            }
         })
-    }
+    })
 }
 function fade (_in: boolean, duration: number, block: boolean) {
     if (_in) {
@@ -197,7 +202,7 @@ constants_length = 1600
 jumps = 0
 won = false
 in_game = false
-pause(100)
+pause(500)
 if (controller.B.isPressed()) {
     scene.setBackgroundColor(13)
     pause(100)
