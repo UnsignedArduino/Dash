@@ -3,18 +3,36 @@ namespace StatusBarKind {
 }
 controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
     if (in_game) {
-        jump(sprite_player, constants_gravity, constants_tiles_high_jump)
+        jump(sprite_player, gravity, constants_tiles_high_jump)
     }
 })
 scene.onHitWall(SpriteKind.Player, function (sprite, location) {
-    if (sprite.isHittingTile(CollisionDirection.Bottom)) {
-        jumps = 0
+    if (gravity > 0) {
+        if (sprite.isHittingTile(CollisionDirection.Bottom)) {
+            jumps = 0
+        }
+    } else {
+        if (sprite.isHittingTile(CollisionDirection.Top)) {
+            jumps = 0
+        }
     }
+})
+function level_4 () {
+    tiles.setSmallTilemap(tilemap`level_4`)
+    scene.setBackgroundColor(13)
+}
+scene.onOverlapTile(SpriteKind.Player, assets.tile`gravity_down`, function (sprite, location) {
+    gravity = Math.abs(gravity) * 1
+    sprite_player.ay = gravity
 })
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     if (in_game) {
-        jump(sprite_player, constants_gravity, constants_tiles_high_jump)
+        jump(sprite_player, gravity, constants_tiles_high_jump)
     }
+})
+scene.onOverlapTile(SpriteKind.Player, assets.tile`gravity_up0`, function (sprite, location) {
+    gravity = Math.abs(gravity) * -1
+    sprite_player.ay = gravity
 })
 scene.onOverlapTile(SpriteKind.Player, assets.tile`top_spike`, function (sprite, location) {
     sprite.destroy(effects.disintegrate, 100)
@@ -55,7 +73,7 @@ function create_status_bar (sprite: Sprite, tilemap_length: number) {
 }
 function game_over (win2: boolean) {
     info.setScore(Math.constrain(Math.round(sprite_player.right), 0, constants_length))
-    if (info.score() > high_scores[selected_level]) {
+    if (info.score() > high_scores[selected_level - 1]) {
         high_scores[selected_level - 1] = info.score()
     }
     blockSettings.writeNumberArray("high_scores", high_scores)
@@ -63,7 +81,7 @@ function game_over (win2: boolean) {
 }
 scene.onOverlapTile(SpriteKind.Player, assets.tile`auto_jump`, function (sprite, location) {
     timer.throttle("auto_jump", 100, function () {
-        jump(sprite_player, constants_gravity, constants_tiles_high_jump)
+        jump(sprite_player, gravity, constants_tiles_high_jump)
         jumps = 0
     })
 })
@@ -92,7 +110,7 @@ function make_player () {
     sprite_player_cam = sprites.create(assets.image`camera_reference`, SpriteKind.Player)
     sprite_player.setFlag(SpriteFlag.AutoDestroy, true)
     sprite_player_cam.setFlag(SpriteFlag.Ghost, true)
-    sprite_player.ay = constants_gravity
+    sprite_player.ay = gravity
 }
 function in_simulator_or_rpi () {
     return control.deviceDalVersion() == "sim" || control.deviceDalVersion() == "linux"
@@ -127,24 +145,28 @@ function select_level () {
 }
 function jump (sprite: Sprite, gravity: number, tiles2: number) {
     if (jumps < constants_max_jumps) {
-        sprite.vy = 0 - Math.sqrt(2 * (gravity * (tiles2 * tiles.tileWidth())))
+        if (gravity > 0) {
+            sprite.vy = 0 - Math.sqrt(2 * (gravity * (tiles2 * tiles.tileWidth())))
+        } else {
+            sprite.vy = Math.sqrt(2 * (Math.abs(gravity) * (tiles2 * tiles.tileWidth())))
+        }
         jumps += 1
-    }
-    timer.background(function () {
-        timer.throttle("rotate", 100, function () {
-            if (in_simulator_or_rpi()) {
-                for (let index = 0; index < 36; index++) {
-                    transformSprites.changeRotation(sprite_player, 10)
-                    pause(10)
+        timer.background(function () {
+            timer.throttle("rotate", 100, function () {
+                if (in_simulator_or_rpi()) {
+                    for (let index = 0; index < 36; index++) {
+                        transformSprites.changeRotation(sprite_player, 10)
+                        pause(10)
+                    }
+                } else {
+                    for (let index = 0; index < 8; index++) {
+                        transformSprites.changeRotation(sprite_player, 45)
+                        pause(45)
+                    }
                 }
-            } else {
-                for (let index = 0; index < 8; index++) {
-                    transformSprites.changeRotation(sprite_player, 45)
-                    pause(45)
-                }
-            }
+            })
         })
-    })
+    }
 }
 function fade (_in: boolean, duration: number, block: boolean) {
     if (_in) {
@@ -185,7 +207,6 @@ let percent_traveled = 0
 let sprite_progress_bar: StatusBarSprite = null
 let sprite_player_cam: Sprite = null
 let selected_level = 0
-let percent = 0
 let menu: string[] = []
 let sprite_player: Sprite = null
 let high_scores: number[] = []
@@ -195,12 +216,12 @@ let jumps = 0
 let constants_length = 0
 let constants_max_jumps = 0
 let constants_tiles_high_jump = 0
-let constants_gravity = 0
-constants_gravity = 300
+let gravity = 0
+gravity = 300
 constants_tiles_high_jump = 3
 constants_max_jumps = 2
 constants_length = 1600
-let constants_levels = 3
+let constants_levels = 4
 jumps = 0
 won = false
 in_game = false
@@ -227,13 +248,12 @@ sprite_player.say("Dash!")
 if (true) {
     menu = []
     for (let index = 0; index <= constants_levels - 1; index++) {
-        percent = spriteutils.roundWithPrecision(high_scores[index] / constants_length * 100, 2)
-        menu.push("" + (index + 1) + " (" + percent + "%" + ")")
+        menu.push("" + (index + 1) + " (" + spriteutils.roundWithPrecision(high_scores[index] / constants_length * 100, 2) + "%" + ")")
     }
     selected_level = select_level()
     pause(1000)
 } else {
-    selected_level = 3
+    selected_level = 4
 }
 tiles.loadMap(tiles.createMap(tilemap`level12`))
 blockSettings.writeNumber("high-score", high_scores[selected_level - 1])
@@ -243,6 +263,8 @@ if (selected_level == 1) {
     level_2()
 } else if (selected_level == 3) {
     level_3()
+} else if (selected_level == 4) {
+    level_4()
 }
 prepare_level()
 in_game = true
