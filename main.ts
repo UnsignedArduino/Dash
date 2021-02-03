@@ -64,9 +64,6 @@ function create_status_bar (sprite: Sprite, tilemap_length: number) {
             } else {
                 sprite_progress_bar.setLabel("" + percent_traveled + "%", 15)
             }
-            if (percent_traveled == 100) {
-                win()
-            }
             pause(100)
         }
     })
@@ -77,8 +74,15 @@ function game_over (win2: boolean) {
         high_scores[selected_level - 1] = info.score()
     }
     blockSettings.writeNumberArray("high_scores", high_scores)
-    game.over(win2)
+    timer.after(2000, function () {
+        game.over(win2)
+    })
 }
+scene.onOverlapTile(SpriteKind.Player, assets.tile`flag_bottom`, function (sprite, location) {
+    if (!(won)) {
+        win()
+    }
+})
 scene.onOverlapTile(SpriteKind.Player, assets.tile`auto_jump`, function (sprite, location) {
     timer.throttle("auto_jump", 100, function () {
         jump(sprite_player, gravity, constants_tiles_high_jump)
@@ -97,6 +101,11 @@ function prepare_level () {
     tiles.coverAllTiles(assets.tile`from`, assets.tile`blank`)
     tiles.coverAllTiles(assets.tile`to0`, assets.tile`blank`)
 }
+scene.onOverlapTile(SpriteKind.Player, assets.tile`flag_top`, function (sprite, location) {
+    if (!(won)) {
+        win()
+    }
+})
 scene.onOverlapTile(SpriteKind.Player, assets.tile`from`, function (sprite, location) {
     tiles.placeOnRandomTile(sprite_player, assets.tile`to0`)
     tiles.placeOnRandomTile(sprite_player_cam, assets.tile`to0`)
@@ -187,9 +196,7 @@ function wait_for_select () {
 }
 sprites.onDestroyed(SpriteKind.Player, function (sprite) {
     sprite_player_cam.setVelocity(0, 0)
-    timer.after(2000, function () {
-        game_over(false)
-    })
+    game_over(false)
 })
 blockMenu.onMenuOptionSelected(function (option, index) {
     selected = true
@@ -225,15 +232,27 @@ let constants_levels = 4
 jumps = 0
 won = false
 in_game = false
-pause(500)
-if (controller.B.isPressed()) {
-    scene.setBackgroundColor(13)
-    pause(100)
-    if (game.ask("Reset high scores?")) {
-        blockSettings.remove("high_scores")
-        blockSettings.remove("high-score")
-        game.showLongText("Successfully reset high scores!", DialogLayout.Bottom)
+while (game.runtime() < 500) {
+    if (controller.B.isPressed()) {
+        color.setPalette(
+        color.Black
+        )
+        scene.setBackgroundColor(13)
+        pause(100)
+        fade(false, 2000, true)
+        if (game.ask("Reset high scores?")) {
+            blockSettings.remove("high_scores")
+            blockSettings.remove("high-score")
+            game.showLongText("Successfully reset high scores!", DialogLayout.Bottom)
+            fade(true, 2000, true)
+            break;
+        }
+        fade(true, 2000, true)
     }
+    if (controller.A.isPressed()) {
+        break;
+    }
+    pause(100)
 }
 if (!(blockSettings.exists("high_scores"))) {
     high_scores = []
@@ -248,7 +267,7 @@ sprite_player.say("Dash!")
 if (true) {
     menu = []
     for (let index = 0; index <= constants_levels - 1; index++) {
-        menu.push("" + (index + 1) + " (" + spriteutils.roundWithPrecision(high_scores[index] / constants_length * 100, 2) + "%" + ")")
+        menu.push("" + (index + 1) + " (" + spriteutils.roundWithPrecision(high_scores[index] / constants_length * 100, 2) + "%)" + "")
     }
     selected_level = select_level()
     pause(1000)
