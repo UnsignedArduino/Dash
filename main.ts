@@ -21,6 +21,10 @@ function level_4 () {
     tiles.setSmallTilemap(tilemap`level_4`)
     scene.setBackgroundColor(13)
 }
+function level_5 () {
+    tiles.setSmallTilemap(tilemap`level_5`)
+    scene.setBackgroundColor(13)
+}
 scene.onOverlapTile(SpriteKind.Player, assets.tile`gravity_down`, function (sprite, location) {
     gravity = Math.abs(gravity) * 1
     sprite_player.ay = gravity
@@ -228,7 +232,7 @@ gravity = 300
 constants_tiles_high_jump = 3
 constants_max_jumps = 2
 constants_length = 1600
-let constants_levels = 4
+let constants_levels = 5
 jumps = 0
 won = false
 in_game = false
@@ -272,7 +276,7 @@ if (true) {
     selected_level = select_level()
     pause(1000)
 } else {
-    selected_level = 4
+    selected_level = constants_levels
 }
 tiles.loadMap(tiles.createMap(tilemap`level12`))
 blockSettings.writeNumber("high-score", high_scores[selected_level - 1])
@@ -284,6 +288,8 @@ if (selected_level == 1) {
     level_3()
 } else if (selected_level == 4) {
     level_4()
+} else if (selected_level == 5) {
+    level_5()
 }
 prepare_level()
 in_game = true
