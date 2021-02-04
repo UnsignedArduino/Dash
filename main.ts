@@ -28,6 +28,13 @@ function level_5 () {
 scene.onOverlapTile(SpriteKind.Player, assets.tile`gravity_down`, function (sprite, location) {
     gravity = Math.abs(gravity) * 1
     sprite_player.ay = gravity
+    timer.throttle("fade", 400, function () {
+        timer.background(function () {
+            color.startFade(color.Poke, color.Black, 200)
+            color.pauseUntilFadeDone()
+            color.startFade(color.Black, color.originalPalette, 200)
+        })
+    })
 })
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     if (in_game) {
@@ -37,6 +44,13 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
 scene.onOverlapTile(SpriteKind.Player, assets.tile`gravity_up0`, function (sprite, location) {
     gravity = Math.abs(gravity) * -1
     sprite_player.ay = gravity
+    timer.throttle("fade", 400, function () {
+        timer.background(function () {
+            color.startFade(color.originalPalette, color.Black, 200)
+            color.pauseUntilFadeDone()
+            color.startFade(color.Black, color.Poke, 200)
+        })
+    })
 })
 scene.onOverlapTile(SpriteKind.Player, assets.tile`top_spike`, function (sprite, location) {
     sprite.destroy(effects.disintegrate, 100)
