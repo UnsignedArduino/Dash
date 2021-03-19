@@ -72,7 +72,7 @@ function create_status_bar (sprite: Sprite, tilemap_length: number) {
     sprite_progress_bar.setColor(7, 15)
     sprite_progress_bar.setBarBorder(1, 15)
     timer.background(function () {
-        while (true) {
+        while (in_game) {
             sprite_progress_bar.value = sprite.right
             percent_traveled = Math.round(Math.map(sprite.right, 0, tilemap_length, 0, 100))
             if (percent_traveled < 10) {
@@ -92,8 +92,30 @@ function game_over (win2: boolean) {
         high_scores[selected_level - 1] = info.score()
     }
     blockSettings.writeNumberArray("high_scores", high_scores)
-    timer.after(2000, function () {
-        game.over(win2)
+    timer.after(500, function () {
+        if (win2) {
+            game.reset()
+        } else {
+            in_game = false
+            if (selected_level == 1) {
+                level_1()
+            } else if (selected_level == 2) {
+                level_2()
+            } else if (selected_level == 3) {
+                level_3()
+            } else if (selected_level == 4) {
+                level_4()
+            } else if (selected_level == 5) {
+                level_5()
+            } else if (selected_level == 6) {
+                level_6()
+            }
+            make_player()
+            sprite_progress_bar.destroy()
+            prepare_level()
+            in_game = true
+            sprite_player.say("")
+        }
     })
 }
 scene.onOverlapTile(SpriteKind.Player, assets.tile`flag_bottom`, function (sprite, location) {
@@ -195,6 +217,10 @@ function jump (sprite: Sprite, gravity: number, tiles2: number) {
         })
     }
 }
+function level_6 () {
+    tiles.setSmallTilemap(tilemap`level24`)
+    scene.setBackgroundColor(13)
+}
 function fade (_in: boolean, duration: number, block: boolean) {
     if (_in) {
         color.startFade(color.originalPalette, color.Black, duration)
@@ -246,7 +272,7 @@ gravity = 300
 constants_tiles_high_jump = 3
 constants_max_jumps = 2
 constants_length = 1600
-let constants_levels = 5
+let constants_levels = 6
 jumps = 0
 won = false
 in_game = false
@@ -257,15 +283,15 @@ while (game.runtime() < 500) {
         )
         scene.setBackgroundColor(13)
         pause(100)
-        fade(false, 2000, true)
+        fade(false, 500, true)
         if (game.ask("Reset high scores?")) {
             blockSettings.remove("high_scores")
             blockSettings.remove("high-score")
             game.showLongText("Successfully reset high scores!", DialogLayout.Bottom)
-            fade(true, 2000, true)
+            fade(true, 500, true)
             break;
         }
-        fade(true, 2000, true)
+        fade(true, 500, true)
     }
     if (controller.A.isPressed()) {
         break;
@@ -304,13 +330,22 @@ if (selected_level == 1) {
     level_4()
 } else if (selected_level == 5) {
     level_5()
+} else if (selected_level == 6) {
+    level_6()
 }
 prepare_level()
 in_game = true
 sprite_player.say("")
-fade(false, 2000, false)
+fade(false, 500, false)
 game.onUpdate(function () {
     sprite_player.vx = 48
+})
+game.onUpdateInterval(music.beat(BeatFraction.Whole), function () {
+    timer.background(function () {
+        if (sprite_player) {
+            music.playTone(scene.screenHeight() * 3 - sprite_player.y * 1.5, music.beat(BeatFraction.Whole))
+        }
+    })
 })
 game.onUpdateInterval(100, function () {
     if (!(won)) {
